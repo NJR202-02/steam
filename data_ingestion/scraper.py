@@ -7,6 +7,7 @@ import json
 import pandas as pd
 
 import requests
+from requests.exceptions import HTTPError
 
 from data_ingestion.database.schema import (
     game_check_table,
@@ -54,8 +55,16 @@ def get_game_information(application_id: str):
     while True:
         try:
             response = requests.get(url, headers=HEADERS)
+            response.raise_for_status()
             print(f"HTTP status code: {response.status_code}")
             break
+        except HTTPError as http_err:
+            status_code = http_err.response.status_code if http_err.response else None
+            if status_code == 429:
+                print(f"Too many requests")
+            else:
+                print(f"HTTP error occurred: {http_err} - status code: {status_code}")
+            time.sleep(5)
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
             time.sleep(5)
@@ -67,7 +76,7 @@ def get_game_information(application_id: str):
     else:
         is_game = 1
 
-        get_game_review(application_id)
+        # get_game_review(application_id)
         
         game_detail = response.json()[f"{application_id}"]["data"]
 
@@ -112,6 +121,7 @@ def get_game_information(application_id: str):
                 else:
                     release_date = datetime.strptime(game_detail.get("release_date").get("date"), "%d %b, %Y")
         except Exception as e:
+            release_date = None
             print(f"An unexpected error occurred: {e}")
         
         game_information = {
@@ -145,7 +155,7 @@ def get_game_information(application_id: str):
 
         # insert_data(table_name="game_information", dataframe=pd.DataFrame([game_information]), if_exists_mode="append")
 
-        insert_data_sqlalchemy(
+        upsert_data_sqlalchemy(
             table_object=game_information_table,
             data=[game_information]
         )
@@ -166,7 +176,7 @@ def get_game_information(application_id: str):
         
         # insert_data(table_name="game_genre", dataframe=pd.DataFrame(game_genre_list), if_exists_mode="append")
 
-        insert_data_sqlalchemy(
+        upsert_data_sqlalchemy(
             table_object=game_genre_table,
             data=game_genre_list
         )
@@ -178,7 +188,7 @@ def get_game_information(application_id: str):
     }
 
     # insert_data(table_name="game_check", dataframe=pd.DataFrame([game_check]), if_exists_mode="append")
-    insert_data_sqlalchemy(
+    upsert_data_sqlalchemy(
         table_object=game_check_table,
         data=[game_check]
     )
@@ -218,7 +228,22 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
             "num_per_page": 100,
         }
 
-        response = requests.get(url, params=payload, headers=HEADERS)
+        while True:
+            try:
+                response = requests.get(url, params=payload, headers=HEADERS)
+                response.raise_for_status()
+                print(f"HTTP status code: {response.status_code}")
+                break
+            except HTTPError as http_err:
+                status_code = http_err.response.status_code if http_err.response else None
+                if status_code == 429:
+                    print(f"Too many requests")
+                else:
+                    print(f"HTTP error occurred: {http_err} - status code: {status_code}")
+                time.sleep(5)
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")
+                time.sleep(5)
 
         if page == 1:
             game_review_summary_dict = {
@@ -237,7 +262,7 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
             #     if_exists_mode="append"
             # )
 
-            insert_data_sqlalchemy(
+            upsert_data_sqlalchemy(
                 table_object=game_review_summary_table,
                 data=[game_review_summary_dict]
             )
@@ -281,12 +306,12 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
         #     if_exists_mode="append"
         # )
 
-        insert_data_sqlalchemy(
+        upsert_data_sqlalchemy(
             table_object=game_review_detail_table,
             data=game_review_detail_list
         )
 
-        if (response.json()["query_summary"]["num_reviews"] < 100) or (page == 3):
+        if response.json()["query_summary"]["num_reviews"] < 100:
             print(response.json()["query_summary"]["num_reviews"])
             break
 
@@ -294,7 +319,7 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
 
         page = page + 1
         
-        time.sleep(1)
+        time.sleep(0.1)
 
     return None
 
@@ -303,9 +328,9 @@ if __name__ == "__main__":
 
     application_list = get_application_list()
 
-    k = 50
+    # k = 100
 
-    for item in application_list[:k]:
+    for item in application_list[9370:]:
         application_id = item.get("appid")
         get_game_information(application_id)
         # get_game_review(application_id)

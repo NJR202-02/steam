@@ -1,3 +1,4 @@
+import math
 from datetime import datetime, timedelta
 
 from airflow import DAG
@@ -5,11 +6,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
 
-from data_ingestion.scraper import (
-    get_application_list,
-    get_game_information,
-    get_game_review,
-)
+from data_ingestion.scraper import get_application_list
 
 from data_ingestion.message_queue.tasks import (
     get_game_information_celery,
@@ -37,9 +34,14 @@ application_list = get_application_list()
 
 start, end = split(len(application_list))
 
+def trigger_scraper(batch):
+    print(batch[0])
+    print(batch[1])
 
-def trigger_scraper(application_list):
-    get_game_information_celery.delay(application_list)
+    for item in application_list[batch[0]:batch[1]]:
+        application_id = item.get("appid")
+        print(application_id)
+        get_game_information_celery.delay(application_id)
 
 
 default_arguments = {
@@ -70,40 +72,18 @@ with DAG(
 
     batch_tasks = []
 
-    for batch in zip(start, end):
+    for index, batch in enumerate(zip(start, end)):
+
         task = PythonOperator(
-            task_id=f"scrape_{}",
+            task_id=f"scraper_{index}",
             python_callable=trigger_scraper,
-            op_args=[],
+            op_args=[batch],
         )
+
         batch_tasks.append(task)
-
-
-    
-
-for batch in zip(start, end):
-    print(f"Send tasks{batch}")
-    get_game_information_celery.delay(application_list=application_list[batch[0]:batch[1]])
-
-
-    # get_application_list_op = PythonOperator(
-    #     task_id="get_application_list",
-    #     python_callable=get_application_list,
-    # )
-    
-    # get_game_information_op = PythonOperator(
-    #     task_id="get_game_information",
-    #     python_callable=get_game_information,
-    #     # op_args=[],
-    # )
-
-    # get_game_review_op = PythonOperator(
-    #     task_id="get_game_review",
-    #     python_callable=get_game_review,
-    # )
 
     end_task = DummyOperator(
         task_id="end"
     )
 
-    start_task >> step_1_task >> step_2_task >> end_task
+    start_task >> batch_tasks >> end_task

@@ -78,6 +78,3 @@ docker compose -f docker_compose/docker-compose-broker.yml up -d
 docker compose -f docker_compose/docker-compose-producer.yml up
 docker compose -f docker_compose/docker-compose-worker.yml up
 ```
-
-
-

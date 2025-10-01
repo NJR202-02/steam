@@ -1,32 +1,176 @@
+import os
+import re
+import json
+import pandas as pd
+
+import requests
+
 import time
+from datetime import datetime, timezone
 from data_ingestion.message_queue.worker import app
 
-# from data_ingestion.scraper import get_application_list as _get_application_list
-from data_ingestion.scraper import get_game_information as _get_game_information
 from data_ingestion.scraper import get_game_review as _get_game_review
 
+from data_ingestion.database.schema import (
+    game_check_table,
+    game_information_table,
+    game_genre_table,
+)
 
-# @app.task()
-# def get_application_list_celery(**kwargs):
-#     """
-#     """
-#     _get_application_list()
-#     return
+from data_ingestion.database.upload import insert_data_sqlalchemy, upsert_data_sqlalchemy
 
+
+HEADERS = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+}
 
 @app.task()
-def get_game_information_celery(application_list: list, **kwargs):
+def get_game_information_celery(application_id: str):
     """
+    game_check
+    game_information
+    game_genre
     """
-    print(f"Start")
-    for item in application_list:
-        application_id = item.get("appid")
-        _get_game_information(application_id)
-        time.sleep(300)
+    print(f"Processing: {application_id}")
+
+    url = f"https://store.steampowered.com/api/appdetails?appids={application_id}&cc=TW"
+
+    while True:
+        try:
+            response = requests.get(url, headers=HEADERS)
+            print(f"HTTP status code: {response.status_code}")
+            break
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            time.sleep(5)
+    
+    if not response.json()[f"{application_id}"]["success"]:
+        is_game = 0
+    elif not response.json()[f"{application_id}"]["data"]["type"] == "game":
+        is_game = 0
+    else:
+        is_game = 1
+
+        get_game_review_celery.delay(application_id)
+        
+        game_detail = response.json()[f"{application_id}"]["data"]
+
+        if game_detail.get("supported_languages") is None:
+            supported_languages = None
+        else:
+            supported_languages = game_detail.get("supported_languages").replace("<strong>*</strong>", "")
+
+        if game_detail.get("developers") is None:
+            developers = None
+        else:
+            developers = "|".join(game_detail.get("developers"))
+
+        if game_detail.get("publishers") is None:
+            publishers = None
+        else:
+            publishers = "|".join(game_detail.get("publishers"))
+
+        if game_detail.get("price_overview") is None:
+            # initial_price = None
+            # final_price = None
+            # discount_percent = None
+            # initial_formatted = None
+            final_formatted = None
+        else:
+            # initial_price = game_detail.get("price_overview").get("initial")
+            # final_price = game_detail.get("price_overview").get("final")
+            # discount_percent = game_detail.get("price_overview").get("discount_percent")
+            # initial_formatted = game_detail.get("price_overview").get("initial_formatted")
+            final_formatted = game_detail.get("price_overview").get("final_formatted")
+        
+        pattern = r"['A-Z']"
+
+        try:
+            if game_detail.get("release_date").get("date") == "":
+                release_date = None
+            elif game_detail.get("release_date").get("date") == "Coming soon":
+                release_date = None
+            else:
+                if re.match(pattern, game_detail.get("release_date").get("date")[0]):
+                    release_date = datetime.strptime(game_detail.get("release_date").get("date"), "%b %d, %Y")
+                else:
+                    release_date = datetime.strptime(game_detail.get("release_date").get("date"), "%d %b, %Y")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+        
+        game_information = {
+            "app_id": application_id,
+            
+            "steam_app_id": game_detail.get("steam_appid"),
+                
+            "name": game_detail.get("name"),
+
+            # "type": game_detail.get("type"),
+
+            "required_age": game_detail.get("required_age"),
+
+            "is_free": game_detail.get("is_free"),
+
+            "supported_languages": supported_languages,
+
+            "header_image": game_detail.get("header_image", None),
+
+            "developers": developers,
+            "publishers": publishers,
+                
+            # "initial_price": initial_price,
+            # "final_price": final_price,
+            # "discount_percent": discount_percent,
+            # "initial_formatted": initial_formatted,
+            "final_formatted": final_formatted,
+
+            "release_date": release_date,
+        }
+
+        # insert_data(table_name="game_information", dataframe=pd.DataFrame([game_information]), if_exists_mode="append")
+
+        insert_data_sqlalchemy(
+            table_object=game_information_table,
+            data=[game_information]
+        )
+
+        game_genre_list = []
+
+        if game_detail.get("genres") is None:
+            game_genre = None
+        else:
+            for item in game_detail.get("genres"):
+                game_genre_dict = {
+                    "app_id": application_id,
+                    "genre_id": item.get("id"),
+                    "genre_description": item.get("description"),
+                }
+                game_genre_list.append(game_genre_dict)
+        
+        # insert_data(table_name="game_genre", dataframe=pd.DataFrame(game_genre_list), if_exists_mode="append")
+
+        insert_data_sqlalchemy(
+            table_object=game_genre_table,
+            data=game_genre_list
+        )
+    
+
+    game_check = {
+        "app_id": application_id,
+        "is_game": is_game,
+    }
+
+    # insert_data(table_name="game_check", dataframe=pd.DataFrame([game_check]), if_exists_mode="append")
+    insert_data_sqlalchemy(
+        table_object=game_check_table,
+        data=[game_check]
+    )
+
+    time.sleep(1)
+
+    return None
 
 
 @app.task()
 def get_game_review_celery(application_id: str, **kwargs):
-    """
-    """
     _get_game_review(application_id)
