@@ -11,12 +11,8 @@ services:
         restart: always  # 若容器停止或崩潰，自動重新啟動
         environment:
             - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
-            - RABBITMQ_HOST=rabbitmq
-        networks:
-            - njr20202_network  # 將此服務連接到 my_network 網路
+        env_file:
+            - .env
         volumes:
+            - ./data_ingestion:/app/data_ingestion
             - ./output:/app/output
-
-networks:
-    njr20202_network:
-        external: true
