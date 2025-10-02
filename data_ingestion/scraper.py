@@ -256,12 +256,6 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
                 "capture_date": datetime.now(timezone.utc),
             }
 
-            # insert_data(
-            #     table_name="game_review_summary",
-            #     dataframe=pd.DataFrame([game_review_summary_dict]),
-            #     if_exists_mode="append"
-            # )
-
             upsert_data_sqlalchemy(
                 table_object=game_review_summary_table,
                 data=[game_review_summary_dict]
