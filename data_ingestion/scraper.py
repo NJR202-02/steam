@@ -300,12 +300,6 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
 
             game_review_detail_list.append(game_review_detail_dict)
 
-        # insert_data(
-        #     table_name="game_review_detail",
-        #     dataframe=pd.DataFrame(game_review_detail_list),
-        #     if_exists_mode="append"
-        # )
-
         upsert_data_sqlalchemy(
             table_object=game_review_detail_table,
             data=game_review_detail_list
