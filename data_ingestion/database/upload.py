@@ -15,6 +15,7 @@ from data_ingestion.database.configuration import (
 # Create metadata
 metadata = MetaData()
 
+
 def insert_data(
         table_name: str,
         dataframe: pd.DataFrame,
@@ -78,9 +79,20 @@ def upsert_data_sqlalchemy(
     print(f"Finish to Upsert data")
 
 
+def read_data(table_name: str):
+
+    mysql_address = f"mysql+pymysql://{MYSQL_USERNAME}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
+    engine = create_engine(mysql_address)
+
+    dataframe = pd.read_sql(f"SELECT * FROM {table_name}", con=engine)
+
+    return dataframe
+
+
 if __name__ == "__main__":
     print(MYSQL_USERNAME)
     print(MYSQL_PASSWORD)
     print(MYSQL_HOST)
     print(MYSQL_PORT)
     print(MYSQL_DATABASE)
+
