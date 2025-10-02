@@ -1,12 +1,15 @@
 import os
+import json
+import time
+from datetime import datetime, timezone
+
 import re
 import json
 import pandas as pd
 
 import requests
+from requests.exceptions import HTTPError
 
-import time
-from datetime import datetime, timezone
 from data_ingestion.message_queue.worker import app
 
 from data_ingestion.scraper import get_game_review as _get_game_review
@@ -24,6 +27,7 @@ HEADERS = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
 }
 
+
 @app.task()
 def get_game_information_celery(application_id: str):
     """
@@ -38,8 +42,16 @@ def get_game_information_celery(application_id: str):
     while True:
         try:
             response = requests.get(url, headers=HEADERS)
+            response.raise_for_status()
             print(f"HTTP status code: {response.status_code}")
             break
+        except HTTPError as http_err:
+            status_code = http_err.response.status_code if http_err.response else None
+            if status_code == 429:
+                print(f"Too many requests")
+            else:
+                print(f"HTTP error occurred: {http_err} - status code: {status_code}")
+            time.sleep(5)
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
             time.sleep(5)
@@ -127,9 +139,7 @@ def get_game_information_celery(application_id: str):
             "release_date": release_date,
         }
 
-        # insert_data(table_name="game_information", dataframe=pd.DataFrame([game_information]), if_exists_mode="append")
-
-        insert_data_sqlalchemy(
+        upsert_data_sqlalchemy(
             table_object=game_information_table,
             data=[game_information]
         )
@@ -147,9 +157,7 @@ def get_game_information_celery(application_id: str):
                 }
                 game_genre_list.append(game_genre_dict)
         
-        # insert_data(table_name="game_genre", dataframe=pd.DataFrame(game_genre_list), if_exists_mode="append")
-
-        insert_data_sqlalchemy(
+        upsert_data_sqlalchemy(
             table_object=game_genre_table,
             data=game_genre_list
         )
@@ -160,13 +168,12 @@ def get_game_information_celery(application_id: str):
         "is_game": is_game,
     }
 
-    # insert_data(table_name="game_check", dataframe=pd.DataFrame([game_check]), if_exists_mode="append")
-    insert_data_sqlalchemy(
+    upsert_data_sqlalchemy(
         table_object=game_check_table,
         data=[game_check]
     )
 
-    time.sleep(1)
+    time.sleep(0.5)
 
     return None
 
