@@ -12,7 +12,4 @@ services:
         environment:
             - TZ=Asia/Taipei  # 設定時區為台北（UTC+8）
         env_file:
-            - .env
-        volumes:
-            - ./data_ingestion:/app/data_ingestion
-            - ./output:/app/output
+            - ../.env
