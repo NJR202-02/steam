@@ -76,7 +76,7 @@ def get_game_information(application_id: str):
     else:
         is_game = 1
 
-        # get_game_review(application_id)
+        get_game_review(application_id)
         
         game_detail = response.json()[f"{application_id}"]["data"]
 
@@ -153,12 +153,7 @@ def get_game_information(application_id: str):
             "release_date": release_date,
         }
 
-        # insert_data(table_name="game_information", dataframe=pd.DataFrame([game_information]), if_exists_mode="append")
-
-        upsert_data_sqlalchemy(
-            table_object=game_information_table,
-            data=[game_information]
-        )
+        upsert_data_sqlalchemy(table_object=game_information_table, data=[game_information])
 
 
         game_genre_list = []
@@ -174,12 +169,7 @@ def get_game_information(application_id: str):
                 }
                 game_genre_list.append(game_genre_dict)
         
-        # insert_data(table_name="game_genre", dataframe=pd.DataFrame(game_genre_list), if_exists_mode="append")
-
-        upsert_data_sqlalchemy(
-            table_object=game_genre_table,
-            data=game_genre_list
-        )
+        upsert_data_sqlalchemy(table_object=game_genre_table, data=game_genre_list)
     
 
     game_check = {
@@ -187,11 +177,7 @@ def get_game_information(application_id: str):
         "is_game": is_game,
     }
 
-    # insert_data(table_name="game_check", dataframe=pd.DataFrame([game_check]), if_exists_mode="append")
-    upsert_data_sqlalchemy(
-        table_object=game_check_table,
-        data=[game_check]
-    )
+    upsert_data_sqlalchemy(table_object=game_check_table, data=[game_check])
 
     time.sleep(1)
 
@@ -256,10 +242,7 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
                 "capture_date": datetime.now(timezone.utc),
             }
 
-            upsert_data_sqlalchemy(
-                table_object=game_review_summary_table,
-                data=[game_review_summary_dict]
-            )
+            upsert_data_sqlalchemy(table_object=game_review_summary_table, data=[game_review_summary_dict])
 
         for i in range(response.json()["query_summary"]["num_reviews"]):
 
@@ -294,10 +277,7 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
 
             game_review_detail_list.append(game_review_detail_dict)
 
-        upsert_data_sqlalchemy(
-            table_object=game_review_detail_table,
-            data=game_review_detail_list
-        )
+        upsert_data_sqlalchemy(table_object=game_review_detail_table, data=game_review_detail_list)
 
         if response.json()["query_summary"]["num_reviews"] < 100:
             print(response.json()["query_summary"]["num_reviews"])
@@ -307,7 +287,7 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
 
         page = page + 1
         
-        time.sleep(0.1)
+        time.sleep(1)
 
     return None
 
@@ -316,9 +296,11 @@ if __name__ == "__main__":
 
     application_list = get_application_list()
 
+    print(len(application_list))
+
     # k = 100
 
-    for item in application_list[9370:]:
+    for item in application_list:
         application_id = item.get("appid")
         get_game_information(application_id)
         # get_game_review(application_id)

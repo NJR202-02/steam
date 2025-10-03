@@ -8,10 +8,13 @@ from airflow.operators.python_operator import PythonOperator
 
 from data_ingestion.scraper import get_application_list
 
+from data_ingestion.database.upload import read_data
+
 from data_ingestion.message_queue.tasks import (
     get_game_information_celery,
-    get_game_review_celery,
+    get_game_review_celery
 )
+
 
 def split(total_count, k: int = 30):
     base = math.ceil(total_count / k)
@@ -34,19 +37,36 @@ application_list = get_application_list()
 
 start, end = split(len(application_list))
 
+
 def trigger_scraper(batch):
     print(batch[0])
     print(batch[1])
 
+    try:
+        game_check = read_data(table_name="game_check")
+    except:
+        game_check = None
+    else:
+        all_id = list(game_check["app_id"])
+
+        game = game_check[game_check["is_game"] == 1]
+        game_id = list(game["app_id"])
+    
     for item in application_list[batch[0]:batch[1]]:
-        application_id = item.get("appid")
-        print(application_id)
-        get_game_information_celery.delay(application_id)
+        application_id = str(item.get("appid"))
+        print(f"Execute: {application_id}")
+
+        if game_check is None:
+            get_game_information_celery.apply_async(kwargs={"application_id": application_id}, queue="game_information_queue")
+        else:
+            if application_id not in all_id:
+                get_game_information_celery.apply_async(kwargs={"application_id": application_id}, queue="game_information_queue")
+            elif application_id in game_id:
+                get_game_review_celery.apply_async(kwargs={"application_id": application_id}, queue="game_review_queue")
 
 
 default_arguments = {
-    "owner": "NJR202-02-22",
-
+    "owner": "NJR202-02",
     "retries": 1,
     "retry_delay": timedelta(minutes=1),
     "depends_on_past": False,
@@ -60,8 +80,8 @@ with DAG(
     dag_id="dag",
     default_args=default_arguments,
     description="",
-    schedule_interval="0 * * * *",  # 每小時執行
-    start_date=datetime(2025, 9, 30),
+    schedule_interval="8 0 * * *",
+    start_date=datetime(2025, 10, 1),
     catchup=False,
     tags=["steam"],
 ) as dag:

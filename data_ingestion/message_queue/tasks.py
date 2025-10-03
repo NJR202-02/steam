@@ -63,7 +63,7 @@ def get_game_information_celery(application_id: str):
     else:
         is_game = 1
 
-        get_game_review_celery.delay(application_id)
+        get_game_review_celery.apply_async(kwargs={"application_id": application_id}, queue="game_review_queue")
         
         game_detail = response.json()[f"{application_id}"]["data"]
 
@@ -139,10 +139,8 @@ def get_game_information_celery(application_id: str):
             "release_date": release_date,
         }
 
-        upsert_data_sqlalchemy(
-            table_object=game_information_table,
-            data=[game_information]
-        )
+        upsert_data_sqlalchemy(table_object=game_information_table, data=[game_information])
+
 
         game_genre_list = []
 
@@ -157,23 +155,17 @@ def get_game_information_celery(application_id: str):
                 }
                 game_genre_list.append(game_genre_dict)
         
-        upsert_data_sqlalchemy(
-            table_object=game_genre_table,
-            data=game_genre_list
-        )
-    
+        upsert_data_sqlalchemy(table_object=game_genre_table,data=game_genre_list)
+
 
     game_check = {
         "app_id": application_id,
         "is_game": is_game,
     }
 
-    upsert_data_sqlalchemy(
-        table_object=game_check_table,
-        data=[game_check]
-    )
+    upsert_data_sqlalchemy(table_object=game_check_table,data=[game_check])
 
-    time.sleep(0.5)
+    time.sleep(1)
 
     return None
 
