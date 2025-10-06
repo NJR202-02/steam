@@ -77,7 +77,7 @@ default_arguments = {
 
 
 with DAG(
-    dag_id="dag",
+    dag_id="dag_producer_steam_scraper",
     default_args=default_arguments,
     description="",
     schedule_interval="8 0 * * *",
