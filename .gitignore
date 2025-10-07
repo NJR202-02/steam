@@ -19,3 +19,4 @@ airflow/logs/
 .env
 key.json
 *.ipynb
+/infra
