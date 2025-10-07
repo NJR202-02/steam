@@ -1,0 +1,26 @@
+# version: "3.0"  # 使用 Docker Compose 的版本 3.0，適合大部分部署場景
+
+x-worker-base: &worker-base
+  image: ${DOCKER_HUB_USER:-enzochang}/data_ingestion:latest
+  restart: always
+  env_file:
+    - ../.env
+  environment:
+    - TZ=Asia/Taipei
+
+services:
+  worker_info:
+    <<: *worker-base
+    container_name: worker_information
+    command: >
+      uv run celery -A data_ingestion.message_queue.worker worker
+      --loglevel=info --hostname=worker_info%h
+      -Q game_information_queue --concurrency=1
+
+  worker_review:
+    <<: *worker-base
+    container_name: worker_review
+    command: >
+      uv run celery -A data_ingestion.message_queue.worker worker
+      --loglevel=info --hostname=worker_review%h
+      -Q game_review_queue --concurrency=1
