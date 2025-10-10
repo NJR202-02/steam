@@ -110,3 +110,5 @@ terraform init
 ```
 terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
+### 6）刪除已建立vm-worker
+terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
