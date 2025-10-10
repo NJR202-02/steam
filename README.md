@@ -81,14 +81,32 @@ docker compose -f docker_compose/docker-compose-worker.yml up
 
 ## Terraform
 
+### 1）安裝 Terraform（Ubuntu）
+```
+sudo apt update
+sudo apt install -y wget gnupg software-properties-common
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+  sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install -y terraform
+```
+### 2）登入 GCP（讓 Terraform 有權限）
+```
+gcloud auth application-default login
+gcloud config set project <你的GCP專案ID>
+```
+### 3）進入指定資料夾並建立prod.tfvars
+可參考prod.tfvars.example建立。
+worker_count可直接決定需要的vm-worker台數。
 ```
 cd steam/infra/tf/steam-workers
 nano prod.tfvars
 ```
+### 4）初始化
 ```
 terraform init
 ```
+### 5）建立vm-worker
 ```
-terraform plan  -var-file=prod.tfvars -var="project_id=your project id"
 terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
