@@ -19,4 +19,8 @@ airflow/logs/
 .env
 key.json
 *.ipynb
-/infra
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+prod.tfvars

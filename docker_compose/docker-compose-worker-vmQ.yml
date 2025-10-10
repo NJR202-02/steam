@@ -23,4 +23,4 @@ services:
     command: >
       uv run celery -A data_ingestion.message_queue.worker worker
       --loglevel=info --hostname=worker_review%h
-      -Q game_review_queue --concurrency=1
+      -Q game_review_queue,celery --concurrency=1

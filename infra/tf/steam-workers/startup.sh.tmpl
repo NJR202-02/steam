@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+# --- Docker 官方套件庫（Ubuntu 22.04）---
+apt-get update -y
+apt-get install -y ca-certificates curl gnupg git python3-pip
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | tee /etc/apt/keyrings/docker.asc > /dev/null
+chmod a+r /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+  | tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-get update -y
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+systemctl enable --now docker
+
+#（可選）別動使用者群組；啟動腳本本來就以 root 跑，docker 指令可直接用
+# usermod -aG docker $USER
+
+# --- 安裝 uv（Python 套件工具）---
+# 官方安裝腳本把可執行檔放在 ~/.local/bin；在非互動 shell 手動加 PATH
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="/root/.local/bin:$PATH"
+
+# --- 取你的 repo ---
+cd /opt || (mkdir -p /opt && cd /opt)
+if [ ! -d steam ]; then
+  git clone --depth 1 "${repo_url}" steam
+fi
+cd steam
+
+# --- 寫 .env（用 Terraform 傳入；若空就跳過）---
+if [ -n "${env_text}" ]; then
+  # 用單引號 EOF，避免 變數 在機器端被展開
+  cat > .env <<'EOF'
+${env_text}
+EOF
+fi
+
+# --- uv 環境同步（若專案有 pyproject.toml 才會生效，不然略過）---
+if [ -f pyproject.toml ]; then
+  uv sync || true
+fi
+
+# === 外部網路 ===
+NET_NAME="njr20202_network"   
+docker network inspect "$NET_NAME" >/dev/null 2>&1 || docker network create "$NET_NAME"
+
+
+# --- 先拉 images，起 broker 與 worker ---
+if [ -f "${compose_broker}" ]; then
+  docker compose --env-file .env -f "${compose_broker}" pull || true
+  docker compose --env-file .env -f "${compose_broker}" up -d
+fi
+if [ -f "${compose_worker}" ]; then
+  docker compose --env-file .env -f "${compose_worker}" pull || true
+  docker compose --env-file .env -f "${compose_worker}" up -d
+fi
+
+# 留個記錄
+echo "startup completed at $(date -Iseconds)" >> /var/log/startup.log
+

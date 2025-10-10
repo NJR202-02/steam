@@ -78,3 +78,17 @@ docker compose -f docker_compose/docker-compose-broker.yml up -d
 docker compose -f docker_compose/docker-compose-producer.yml up
 docker compose -f docker_compose/docker-compose-worker.yml up
 ```
+
+## Terraform
+
+```
+cd steam/infra/tf/steam-workers
+nano prod.tfvars
+```
+```
+terraform init
+```
+```
+terraform plan  -var-file=prod.tfvars -var="project_id=your project id"
+terraform apply -var-file=prod.tfvars -var="project_id=your project id"
+```

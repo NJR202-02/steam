@@ -1,0 +1,20 @@
+project_id   = "your porject id"
+worker_count = 2
+env_text     = <<-EOF
+
+RABBITMQ_HOST= vm-main IP
+RABBITMQ_PORT=5672
+
+WORKER_USERNAME=worker
+WORKER_PASSWORD=worker
+
+MYSQL_HOST=vm-main IP
+MYSQL_PORT=3306
+MYSQL_USERNAME=root
+MYSQL_PASSWORD=your password
+MYSQL_ROOT_PASSWORD=your password
+MYSQL_DATABASE=steam
+
+
+TZ=Asia/Taipei
+EOF
