@@ -133,7 +133,7 @@
         <mxCell id="KHLjTM75nICwSrer4PUh-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;flowAnimation=1;" edge="1" parent="1" source="KHLjTM75nICwSrer4PUh-4" target="KHLjTM75nICwSrer4PUh-13">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="KHLjTM75nICwSrer4PUh-4" value="判斷應用程式是否為遊戲" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fillColor=#a0522d;strokeColor=#6D1F00;fontColor=#ffffff;" vertex="1" parent="1">
+        <mxCell id="KHLjTM75nICwSrer4PUh-4" value="判斷該應用程式是否為遊戲" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fillColor=#a0522d;strokeColor=#6D1F00;fontColor=#ffffff;" vertex="1" parent="1">
           <mxGeometry x="200" y="-80" width="160" height="120" as="geometry" />
         </mxCell>
         <mxCell id="KHLjTM75nICwSrer4PUh-5" value="是" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
@@ -186,7 +186,7 @@
         <mxCell id="h93T5KkapXuczNazIuGs-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;flowAnimation=1;" edge="1" parent="1" source="h93T5KkapXuczNazIuGs-4" target="h93T5KkapXuczNazIuGs-7">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="h93T5KkapXuczNazIuGs-4" value="比對資料庫&lt;div&gt;是否已搜集過相關資訊&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fillColor=#a0522d;strokeColor=#6D1F00;fontColor=#ffffff;" vertex="1" parent="1">
+        <mxCell id="h93T5KkapXuczNazIuGs-4" value="比對資料庫&lt;div&gt;是否已搜集過&lt;/div&gt;&lt;div&gt;該應用程式資料&lt;/div&gt;" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fillColor=#a0522d;strokeColor=#6D1F00;fontColor=#ffffff;" vertex="1" parent="1">
           <mxGeometry x="200" y="-80" width="160" height="120" as="geometry" />
         </mxCell>
         <mxCell id="h93T5KkapXuczNazIuGs-5" value="是" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
@@ -237,7 +237,7 @@
         <mxCell id="NAF7NdPhnk852lZS-8Q6-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;flowAnimation=1;" edge="1" parent="1" source="c-hoIKYHcG6q9aylgLXi-4" target="h93T5KkapXuczNazIuGs-13">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="c-hoIKYHcG6q9aylgLXi-4" value="判斷應用程式是否為遊戲" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fillColor=#a0522d;strokeColor=#6D1F00;fontColor=#ffffff;" vertex="1" parent="1">
+        <mxCell id="c-hoIKYHcG6q9aylgLXi-4" value="判斷該應用程式是否為遊戲" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.decision;whiteSpace=wrap;fillColor=#a0522d;strokeColor=#6D1F00;fontColor=#ffffff;" vertex="1" parent="1">
           <mxGeometry x="200" y="120" width="160" height="120" as="geometry" />
         </mxCell>
         <mxCell id="Rt2X_LNk7KF9H1nx2k3s-1" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;flowAnimation=1;" edge="1" parent="1" source="h93T5KkapXuczNazIuGs-4" target="c-hoIKYHcG6q9aylgLXi-4">
