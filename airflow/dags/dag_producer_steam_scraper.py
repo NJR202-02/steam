@@ -38,20 +38,19 @@ application_list = get_application_list()
 start, end = split(len(application_list))
 
 
+try:
+    game_check = read_data(table_name="game_check")
+except:
+    game_check = None
+
 def trigger_scraper(batch):
     print(batch[0])
     print(batch[1])
 
-    try:
-        game_check = read_data(table_name="game_check")
-    except:
-        game_check = None
-    else:
-        all_id = list(game_check["app_id"])
+    all_id = list(game_check["app_id"])
+    game = game_check[game_check["is_game"] == 1]
+    game_id = list(game["app_id"])
 
-        game = game_check[game_check["is_game"] == 1]
-        game_id = list(game["app_id"])
-    
     for item in application_list[batch[0]:batch[1]]:
         application_id = str(item.get("appid"))
         print(f"Execute: {application_id}")
@@ -70,9 +69,9 @@ default_arguments = {
     "retries": 1,
     "retry_delay": timedelta(minutes=1),
     "depends_on_past": False,
-    # "email": [""],
-    # "email_on_failure": False,
-    # "email_on_retry": False,
+    # "email": ["njr202_02@gmail.com"],
+    # "email_on_failure": True,
+    # "email_on_retry": True,
 }
 
 
