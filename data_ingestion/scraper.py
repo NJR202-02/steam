@@ -42,7 +42,7 @@ def get_application_list() -> json:
     return application_list
 
 
-def get_game_information(application_id: str):
+def get_game_information(application_id: str, exist: bool = False):
     """
     game_check
     game_information
@@ -76,7 +76,7 @@ def get_game_information(application_id: str):
     else:
         is_game = 1
 
-        get_game_review(application_id)
+        get_game_review(application_id, exist=False)
         
         game_detail = response.json()[f"{application_id}"]["data"]
 
@@ -184,7 +184,7 @@ def get_game_information(application_id: str):
     return None
 
 
-def get_game_review(application_id: str, filtered_language: str = "tchinese"):
+def get_game_review(application_id: str, filtered_language: str = "tchinese", exist: bool = False):
     """
     game_review_summary
     game_review_detail
@@ -194,6 +194,9 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
     game_review_detail_list = []
 
     url = f"https://store.steampowered.com/appreviews/{application_id}?"
+
+    if exist:
+        PAGE_LIMIT = 5
 
     page = 1
 
@@ -279,7 +282,9 @@ def get_game_review(application_id: str, filtered_language: str = "tchinese"):
 
         upsert_data_sqlalchemy(table_object=game_review_detail_table, data=game_review_detail_list)
 
-        if response.json()["query_summary"]["num_reviews"] < 100:
+        if exist and page == PAGE_LIMIT:
+            break
+        elif response.json()["query_summary"]["num_reviews"] < 100:
             print(response.json()["query_summary"]["num_reviews"])
             break
 

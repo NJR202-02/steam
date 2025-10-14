@@ -43,6 +43,7 @@ try:
 except:
     game_check = None
 
+
 def trigger_scraper(batch):
     print(batch[0])
     print(batch[1])
@@ -56,12 +57,12 @@ def trigger_scraper(batch):
         print(f"Execute: {application_id}")
 
         if game_check is None:
-            get_game_information_celery.apply_async(kwargs={"application_id": application_id}, queue="game_information_queue")
+            get_game_information_celery.apply_async(kwargs={"application_id": application_id, "exist": False}, queue="game_information_queue")
         else:
             if application_id not in all_id:
-                get_game_information_celery.apply_async(kwargs={"application_id": application_id}, queue="game_information_queue")
+                get_game_information_celery.apply_async(kwargs={"application_id": application_id, "exist": False}, queue="game_information_queue")
             elif application_id in game_id:
-                get_game_review_celery.apply_async(kwargs={"application_id": application_id}, queue="game_review_queue")
+                get_game_review_celery.apply_async({"application_id": application_id, "exist": True}, queue="game_review_queue")
 
 
 default_arguments = {

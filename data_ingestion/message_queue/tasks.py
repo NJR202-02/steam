@@ -29,7 +29,7 @@ HEADERS = {
 
 
 @app.task()
-def get_game_information_celery(application_id: str):
+def get_game_information_celery(application_id: str, exist: bool = False):
     """
     game_check
     game_information
@@ -63,7 +63,7 @@ def get_game_information_celery(application_id: str):
     else:
         is_game = 1
 
-        get_game_review_celery.apply_async(kwargs={"application_id": application_id}, queue="game_review_queue")
+        get_game_review_celery.apply_async(kwargs={"application_id": application_id, "exist": False}, queue="game_review_queue")
         
         game_detail = response.json()[f"{application_id}"]["data"]
 
@@ -171,5 +171,5 @@ def get_game_information_celery(application_id: str):
 
 
 @app.task()
-def get_game_review_celery(application_id: str, **kwargs):
-    _get_game_review(application_id)
+def get_game_review_celery(application_id: str, exist: bool = False, **kwargs):
+    _get_game_review(application_id, exist=False)
