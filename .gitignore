@@ -19,8 +19,12 @@ airflow/logs/
 .env
 key.json
 *.ipynb
-.terraform
-.terraform.lock.hcl
-terraform.tfstate
-terraform.tfstate.backup
-prod.tfvars
+
+# Terraform
+.terraform/
+.terraform.*
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+terraform.tfvars
