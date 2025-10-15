@@ -103,12 +103,9 @@ steam/
 ```bash
 # 建立虛擬環境並安裝依賴（同步）
 uv sync
-
-# 建立一個 network 讓各服務能溝通
-docker network create my_network
 ```
 
-## 建立 docker network
+### 建立 docker network
 ```
 docker network create njr20202_network
 ```
@@ -134,12 +131,10 @@ docker compose -f airflow/docker-compose-airflow.yml up
 
 ## 🔥 RabbitMQ Broker 與 Celery Worker  (待補)
 ```
-
 # 查看服務 logs
 docker logs -f rabbitmq
 docker logs -f flower
 ```
-
 
 ## Message Queue RabbitMQ Broker 與 Celery Worker
 ```
@@ -264,4 +259,5 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
