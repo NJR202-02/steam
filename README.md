@@ -168,17 +168,17 @@ docker compose -f metabase/docker-compose-metabase-vm.yml ps
 docker compose -f docker_compose/docker-compose-broker.yml up -d
 docker compose -f docker_compose/docker-compose-mysql-vm.yml up -d
 docker compose -f docker_compose/docker-compose-mysql.yml up -d
-docker compose -f airflow/docker-producer.yml up -d
-docker compose -f airflow/docker-worker-vmQ.yml up -d
-docker compose -f metabase/docker-worker.yml up -d
+docker compose -f docker_compose/docker-producer.yml up -d
+docker compose -f docker_compose/docker-worker-vmQ.yml up -d
+docker compose -f docker_compose/docker-worker.yml up -d
 
 # 停止所有服務
 docker compose -f docker_compose/docker-compose-broker.yml down
 docker compose -f docker_compose/docker-compose-mysql-vm.yml down
 docker compose -f docker_compose/docker-compose-mysql.yml down
-docker compose -f airflow/docker-producer.yml down
-docker compose -f airflow/docker-worker-vmQ.yml down
-docker compose -f metabase/docker-worker.yml down
+docker compose -f docker_compose/docker-producer.yml down
+docker compose -f docker_compose/docker-worker-vmQ.yml down
+docker compose -f docker_compose/docker-worker.yml down
 ```
 
 ## Terraform 
@@ -228,6 +228,7 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
 
 
