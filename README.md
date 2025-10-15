@@ -3,7 +3,7 @@
 Steam作為全球最大的遊戲平台，其海量用戶評論是反映玩家真實情感與需求的即時數據源。
 希望透過網路爬蟲與雲端分析技術，讓遊戲開發商重視廣大玩家意見並開發人人都愛玩遊戲。
 
-## 專案目標
+## 專題目標
 
 建立自動化評論蒐集系統,透過資料工程技術萃取有價值訊息,運用時間序列分析找出影響玩家滿意度的關鍵因素，為遊戲開發者與發行商提供具體市場洞察,協助掌握產業趨勢,優化遊戲設計決策,最終提升玩家體驗品質。
 
@@ -12,7 +12,7 @@ Steam作為全球最大的遊戲平台，其海量用戶評論是反映玩家真
 
 黃語婷、林雅嵐、王定國、施漢羿
 
-## 🏗️ 專案架構概述
+## 🏗️ 專題架構概述
 
 本專案是一個完整的資料工程管道，整合了多個現代化的資料處理工具：
 
@@ -34,7 +34,7 @@ Steam API → Python 爬蟲 → RabbitMQ → Celery Workers → MySQL → Metaba
 ```
 
 
-## 資料夾結構
+## 專題結構
 ```
 steam/
 ├── .venv/                                   # Python 虛擬環境
@@ -224,6 +224,7 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
 
 
