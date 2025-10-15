@@ -6,12 +6,12 @@ Steam作為全球最大的遊戲平台，其海量用戶評論是反映玩家真
 # 分析主題：Steam熱度聲量
 
 分析主要討論遊戲好感度、價格、消費者情緒傾向
-探討單一遊戲飲在各大社群平台（上的聲量與熱度變化
+探討單一遊戲在各大社群平台上的聲量與熱度變化
 尋找品牌聲量高峰與事件關聯（行銷、爭議等）
 
-# 研究目的
+# 專案目標
 
-幫助開發商精確識別痛點、優化產品，並快速洞察市場趨勢，從而制定高價值商業決策。
+建立自動化評論蒐集系統,透過資料工程技術萃取有價值訊息,運用時間序列分析找出影響玩家滿意度的關鍵因素。
 
 
 # 組員
@@ -23,7 +23,7 @@ Steam作為全球最大的遊戲平台，其海量用戶評論是反映玩家真
 
 本專案是一個完整的資料工程管道，整合了多個現代化的資料處理工具：
 
-- **🕷️ 資料擷取**: 使用 Python 爬蟲技術擷取 Steam遊戲平台資料
+- **🕷️ 資料擷取**: 使用 Python 爬蟲技術擷取 Steam 遊戲平台資料
 - **⚡ 任務調度**: 透過 Celery + RabbitMQ 實現分散式任務處理
 - **🚀 工作流程管理**: 使用 Apache Airflow 進行 ETL 流程編排
 - **🗄️ 資料存儲**: MySQL 資料庫儲存結構化資料
@@ -36,6 +36,8 @@ Steam API → Python 爬蟲 → RabbitMQ → Celery Workers → MySQL → Metaba
                 ↑                                                ↓
             Airflow DAG                                      商業智慧報表
 
+## 資料夾結構
+```
 steam/
 ├── .venv/                                   # Python 虛擬環境
 ├── .env.example
@@ -47,41 +49,41 @@ steam/
 ├── Dockerfile                               # Docker 映像檔配置
 ├── main.py
 │
-├── airflow/                                 # 🔥 核心資料擷取模組
-│   ├── dags
-│       └── dag_producer_steam_scraper.py
-│   ├── airflow.cfg
-│   ├── docker-compose-airflow-vm.yml
-│   ├── docker-compose-airflow.yml
-│   └── Dockerfile
+├── airflow/                                 # Apache Airflow 工作流程管理
+│   ├── airflow.cfg                          # Airflow 配置檔
+│   ├── docker-compose-airflow-vm.yml        # Airflow-vm Docker Compose 配置
+│   ├── docker-compose-airflow.yml           # Airflow Docker Compose 配置
+│   ├── Dockerfile                           # Airflow Docker 映像檔
+│   └── dags                                 # Airflow DAG 工作流程定義
+│       └── dag_producer_steam_scraper.py    # Steam 爬蟲 DAG
 │
-├── data_ingestion/                          # 🔥 核心資料擷取模組
-│   ├── __init__.py                              
-│   ├── scraper.py
+├── data_ingestion/                          # 核心資料擷取模組
+│   ├── __init__.py                          # Python 套件初始化                             
+│   ├── scraper.py                           # 爬蟲基礎模組
 │   ├── database
-│       ├── __init__.py
-│       ├── configuration.py
-│       ├── schema.py
-│       └── upload.py
-│   ├── message_queue
-│       ├── __init__.py
-│       ├── configuration.py
-│       ├── worker.py
-│       ├── tasks.py
-│       └── producer.py
+│   │   ├── __init__.py                      # Python 套件初始化
+│   │   ├── configuration.py                 # 配置檔（環境變數）
+│   │   ├── schema.py
+│   │   └── upload.py
+│   └── message_queue
+│       ├── __init__.py                      # Python 套件初始化
+│       ├── configuration.py                 # 配置檔（環境變數）
+│       ├── worker.py                        # Celery Worker 設定
+│       ├── tasks.py                         # Celery 任務定義
+│       └── producer.py                      # 基本 Producer
 │                        
 ├── docker_compose/
-│   ├── docker-compose-broker.yml
-│   ├── docker-compose-mysql-vm.yml
-│   ├── docker-compose-mysql.yml
-│   ├── docker-compose-producer.yml
-│   ├── docker-compose-worker-vmQ.yml
-│   └── docker-compose-worker.yml
+│   ├── docker-compose-broker.yml            # RabbitMQ Broker 配置
+│   ├── docker-compose-mysql-vm.yml          # MySQL-vm 資料庫配置
+│   ├── docker-compose-mysql.yml             # MySQL 資料庫配置
+│   ├── docker-compose-producer.yml          # Producer 服務配置
+│   ├── docker-compose-worker-vmQ.yml        # Worker-vm 服務配置
+│   └── docker-compose-worker.yml            # Worker 服務配置
 │
 ├── infra/tf/steam-workers/
 │   ├── terraform
-│       ├──LICENSE.txt
-│       └──terraform-provider-google_v5.45.2_x5
+│   │   ├──LICENSE.txt
+│   │   └──terraform-provider-google_v5.45.2_x5
 │   ├──terraform.lock.hcl
 │   ├── main.tf
 │   ├── prod.tfvars
@@ -89,18 +91,19 @@ steam/
 │   ├── startup.sh.tmpl
 │   ├── terraform.tfstate
 │   └── terraform.tfstate.backup
-├── metabase/
-    ├── docker-compose-metabase-vm.yml
-    └── docker-compose-metabase.yml
-
-
-
+└── metabase/
+    ├── docker-compose-metabase-vm.yml       # metabase-vm 服務配置
+    └── docker-compose-metabase.yml          # metabase 服務配置
 ```
-git clone
-```
+## 指令
 
-```
+### 🔧 環境設定
+```bash
+# 建立虛擬環境並安裝依賴（同步）
 uv sync
+
+# 建立一個 network 讓各服務能溝通
+docker network create my_network
 ```
 
 ## 建立 docker network
@@ -108,12 +111,17 @@ uv sync
 docker network create njr20202_network
 ```
 
-## MySQL
-```
-docker compose -f docker_compose/docker-compose-mysql.yml up -d
+## MySQL 資料庫
+```bash
+# 啟動 MySQL 服務
+docker compose -f docker_compose/docker-compose-mysql-vm.yml up -d
+
+# 停止 MySQL 服務
+docker compose -f docker_compose/docker-compose-mysql-vm.yml down
 ```
 
-## Airflow
+
+## Apache Airflow 工作流程管理 (待改)
 ```
 docker build -f airflow/Dockerfile -t shydatas/airflow:latest .
 ```
@@ -121,6 +129,10 @@ docker build -f airflow/Dockerfile -t shydatas/airflow:latest .
 ```
 docker compose -f airflow/docker-compose-airflow.yml up
 ```
+
+### 🔥 RabbitMQ Broker 與 Celery Worker  (待補)
+
+
 
 ## Message Queue
 ```
@@ -133,7 +145,63 @@ docker compose -f docker_compose/docker-compose-producer.yml up
 docker compose -f docker_compose/docker-compose-worker.yml up
 ```
 
-## Terraform
+### Metabase 商業智慧儀表板
+```bash
+# 啟動 Metabase 服務（包含 PostgreSQL）
+docker compose -f metabase/docker-compose-metabase-vm.yml up -d
+
+# 停止 Metabase 服務
+docker compose -f metabase/docker-compose-metabase-vm.yml down
+
+# 查看 Metabase 服務狀態
+docker compose -f metabase/docker-compose-metabase-vm.yml ps
+
+# 存取 Metabase 網頁介面
+# http://35.209.179.160:3000/
+```
+
+###  爬蟲與任務執行  (待改)
+```bash
+
+# Producer 發送任務
+uv run data_ingestion/producer.py
+uv run data_ingestion/producer_crawler_hahow_all.py
+uv run data_ingestion/producer_crawler_hahow_by_queue.py
+uv run data_ingestion/producer_crawler_hahow_course.py
+
+# 啟動 Worker
+uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker1%h
+uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker2%h
+
+# 指定 Worker concurrency
+uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker1%h --concurrency=1
+uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker2%h --concurrency=1
+
+# 指定 Worker queue
+uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker1%h -Q hahow_course
+uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker2%h -Q hahow_article
+uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker3%h -Q hahow_course,hahow_article
+```
+
+###  Docker Compose 服務管理
+```bash
+# 啟動所有相關服務
+docker compose -f docker-compose-broker.yml up -d
+docker compose -f docker-compose-mysql-vm.yml up -d
+docker compose -f docker-compose-mysql.yml up -d
+docker compose -f airflow/docker-producer.yml up -d
+docker compose -f airflow/docker-worker-vmQ.yml up -d
+docker compose -f metabase/docker-worker.yml up -d
+
+# 停止所有服務
+docker compose -f docker-compose-broker.yml down
+docker compose -f docker-compose-mysql-vm.yml down
+docker compose -f docker-compose-mysql.yml down
+docker compose -f airflow/docker-producer.yml down
+docker compose -f airflow/docker-worker-vmQ.yml down
+docker compose -f metabase/docker-worker.yml down
+
+## Terraform 
 
 ### 1）安裝 Terraform（Ubuntu）
 - 在本地Ubuntu進行安裝。
