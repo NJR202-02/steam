@@ -65,8 +65,8 @@ steam/
 │   ├── database
 │   │   ├── __init__.py                      # Python 套件初始化
 │   │   ├── configuration.py                 # 配置檔（環境變數）
-│   │   ├── schema.py
-│   │   └── upload.py
+│   │   ├── schema.py                        # 資料表結構
+│   │   └── upload.py                        # 上傳/讀取資料庫函數
 │   └── message_queue
 │       ├── __init__.py                      # Python 套件初始化
 │       ├── configuration.py                 # 配置檔（環境變數）
@@ -121,24 +121,17 @@ docker compose -f docker_compose/docker-compose-mysql-vm.yml up -d
 docker compose -f docker_compose/docker-compose-mysql-vm.yml down
 ```
 
-
 ### Apache Airflow 工作流程管理 (待改)
 ```
-docker build -f airflow/Dockerfile -t shydatas/airflow:latest .
+docker build -f Dockerfile -t DOCKER_HUB_USER/data_ingestion:latest .
 ```
 
 ```
+# 啟動 Airflow 服務
 docker compose -f airflow/docker-compose-airflow.yml up
 ```
 
-### 🔥 RabbitMQ Broker 與 Celery Worker  (待補)
-```
-# 查看服務 logs
-docker logs -f rabbitmq
-docker logs -f flower
-```
-
-### Message Queue RabbitMQ Broker 與 Celery Worker
+### Message Queue (RabbitMQ Broker 與 Celery Worker)
 ```
 docker build -f Dockerfile -t shydatas/data_ingestion:latest .
 ```
@@ -239,6 +232,7 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
 
 
