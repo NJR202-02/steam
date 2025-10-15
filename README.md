@@ -92,6 +92,7 @@ steam/
 │   ├── startup.sh.tmpl
 │   ├── terraform.tfstate
 │   └── terraform.tfstate.backup
+│
 └── metabase/
     ├── docker-compose-metabase-vm.yml       # metabase-vm 服務配置
     └── docker-compose-metabase.yml          # metabase 服務配置
@@ -227,6 +228,7 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
 
 
