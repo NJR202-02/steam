@@ -22,7 +22,8 @@ Steam作為全球最大的遊戲平台，其海量用戶評論是反映玩家真
 - **🗄️ 資料存儲**: MySQL 資料庫儲存結構化資料
 - **📊 資料視覺化**: Metabase 建立商業智慧儀表板
 - **🐳 容器化部署**: Docker & Docker Compose 統一管理服務
-  ---
+
+ ---
 
 
 ## 資料流程
@@ -223,6 +224,7 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
 
 
