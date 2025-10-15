@@ -35,6 +35,7 @@ Steam作為全球最大的遊戲平台，其海量用戶評論是反映玩家真
 Steam API → Python 爬蟲 → RabbitMQ → Celery Workers → MySQL → Metabase
                 ↑                                                ↓
             Airflow DAG                                      商業智慧報表
+```
 
 ## 資料夾結構
 ```
@@ -95,6 +96,7 @@ steam/
     ├── docker-compose-metabase-vm.yml       # metabase-vm 服務配置
     └── docker-compose-metabase.yml          # metabase 服務配置
 ```
+
 ## 指令
 
 ### 🔧 環境設定
@@ -130,19 +132,33 @@ docker build -f airflow/Dockerfile -t shydatas/airflow:latest .
 docker compose -f airflow/docker-compose-airflow.yml up
 ```
 
-### 🔥 RabbitMQ Broker 與 Celery Worker  (待補)
+## 🔥 RabbitMQ Broker 與 Celery Worker  (待補)
+```
+
+# 查看服務 logs
+docker logs -f rabbitmq
+docker logs -f flower
+```
 
 
-
-## Message Queue
+## Message Queue RabbitMQ Broker 與 Celery Worker
 ```
 docker build -f Dockerfile -t shydatas/data_ingestion:latest .
 ```
 
 ```
+# 啟動 RabbitMQ Broker 服務
 docker compose -f docker_compose/docker-compose-broker.yml up -d
+
+# 停止並移除 RabbitMQ 服務
+docker compose -f docker_compose/docker-compose-broker.yml down
+
 docker compose -f docker_compose/docker-compose-producer.yml up
 docker compose -f docker_compose/docker-compose-worker.yml up
+
+# 查看服務 logs
+docker logs -f rabbitmq
+docker logs -f flower
 ```
 
 ### Metabase 商業智慧儀表板
@@ -162,7 +178,6 @@ docker compose -f metabase/docker-compose-metabase-vm.yml ps
 
 ###  爬蟲與任務執行  (待改)
 ```bash
-
 # Producer 發送任務
 uv run data_ingestion/producer.py
 uv run data_ingestion/producer_crawler_hahow_all.py
@@ -186,20 +201,21 @@ uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker3
 ###  Docker Compose 服務管理
 ```bash
 # 啟動所有相關服務
-docker compose -f docker-compose-broker.yml up -d
-docker compose -f docker-compose-mysql-vm.yml up -d
-docker compose -f docker-compose-mysql.yml up -d
+docker compose -f docker_compose/docker-compose-broker.yml up -d
+docker compose -f docker_compose/docker-compose-mysql-vm.yml up -d
+docker compose -f docker_compose/docker-compose-mysql.yml up -d
 docker compose -f airflow/docker-producer.yml up -d
 docker compose -f airflow/docker-worker-vmQ.yml up -d
 docker compose -f metabase/docker-worker.yml up -d
 
 # 停止所有服務
-docker compose -f docker-compose-broker.yml down
-docker compose -f docker-compose-mysql-vm.yml down
-docker compose -f docker-compose-mysql.yml down
+docker compose -f docker_compose/docker-compose-broker.yml down
+docker compose -f docker_compose/docker-compose-mysql-vm.yml down
+docker compose -f docker_compose/docker-compose-mysql.yml down
 docker compose -f airflow/docker-producer.yml down
 docker compose -f airflow/docker-worker-vmQ.yml down
 docker compose -f metabase/docker-worker.yml down
+```
 
 ## Terraform 
 
@@ -213,31 +229,39 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://
   sudo tee /etc/apt/sources.list.d/hashicorp.list
 sudo apt update && sudo apt install -y terraform
 ```
+
 ### 2）登入 GCP（讓 Terraform 有權限）
 - 授予 Terraform 建立 VM 的權限。輸入專案ID時請拿掉"<>"。
 ```
 gcloud auth application-default login
 gcloud config set project <你的GCP專案ID>
 ```
+
 ### 3）進入指定資料夾並建立prod.tfvars
 - 可參考prod.tfvars.example建立。
 - worker_count可直接決定需要的vm-worker台數。
 - 先進入steam/infra/tf/steam-workers再建立prod.tfvars。
+
 ```
 cd steam/infra/tf/steam-workers
 ```
+
 ```
 nano prod.tfvars
 ```
+
 ### 4）初始化
 ```
 terraform init
 ```
+
 ### 5）建立vm-worker
 ```
 terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 ### 6）刪除已建立vm-worker
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
