@@ -49,7 +49,6 @@ steam/
 ├── pyproject.toml                           # Python 專案配置檔
 ├── uv.lock                                  # UV 套件管理鎖定檔
 ├── Dockerfile                               # Docker 映像檔配置
-├── main.py
 │
 ├── airflow/                                 # Apache Airflow 工作流程管理
 │   ├── airflow.cfg                          # Airflow 配置檔
@@ -228,6 +227,7 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
 
 
