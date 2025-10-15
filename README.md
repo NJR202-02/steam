@@ -1,45 +1,99 @@
+# 前言
+
+Steam作為全球最大的遊戲平台，其海量用戶評論是反映玩家真實情感與需求的即時數據源。
+希望透過網路爬蟲與雲端分析技術，讓遊戲開發商重視廣大玩家意見並開發人人都愛玩遊戲。
+
+# 分析主題：Steam熱度聲量
+
+分析主要討論遊戲好感度、價格、消費者情緒傾向
+探討單一遊戲飲在各大社群平台（上的聲量與熱度變化
+尋找品牌聲量高峰與事件關聯（行銷、爭議等）
+
+# 研究目的
+
+幫助開發商精確識別痛點、優化產品，並快速洞察市場趨勢，從而制定高價值商業決策。
+
+
+# 組員
+
+黃語婷、林雅嵐、王定國、施漢羿
+
+# 🏗️ 專案架構概述
+
+
+本專案是一個完整的資料工程管道，整合了多個現代化的資料處理工具：
+
+- **🕷️ 資料擷取**: 使用 Python 爬蟲技術擷取 Steam遊戲平台資料
+- **⚡ 任務調度**: 透過 Celery + RabbitMQ 實現分散式任務處理
+- **🚀 工作流程管理**: 使用 Apache Airflow 進行 ETL 流程編排
+- **🗄️ 資料存儲**: MySQL 資料庫儲存結構化資料
+- **📊 資料視覺化**: Metabase 建立商業智慧儀表板
+- **🐳 容器化部署**: Docker & Docker Compose 統一管理服務
+
+### 資料流程
 ```
-de-project/
+Steam API → Python 爬蟲 → RabbitMQ → Celery Workers → MySQL → Metabase
+                ↑                                                ↓
+            Airflow DAG                                      商業智慧報表
+
+steam/
 ├── .venv/                                   # Python 虛擬環境
+├── .env.example
 ├── .gitignore                               # Git 忽略檔案設定
 ├── .python-version                          # Python 版本指定
 ├── README.md                                # 專案說明文件
 ├── pyproject.toml                           # Python 專案配置檔
 ├── uv.lock                                  # UV 套件管理鎖定檔
+├── Dockerfile                               # Docker 映像檔配置
+├── main.py
+│
+├── airflow/                                 # 🔥 核心資料擷取模組
+│   ├── dags
+│       └── dag_producer_steam_scraper.py
+│   ├── airflow.cfg
+│   ├── docker-compose-airflow-vm.yml
+│   ├── docker-compose-airflow.yml
+│   └── Dockerfile
 │
 ├── data_ingestion/                          # 🔥 核心資料擷取模組
-│   ├── __init__.py                          # Python 套件初始化
-│   ├── scraper.py                           # 爬蟲
-│   │
+│   ├── __init__.py                              
+│   ├── scraper.py
 │   ├── database
-│   │   ├── __init__.py
-│   │   ├── configuration.py
-│   │   ├── schema.py
-│   │   └── upload.py
-│   │
+│       ├── __init__.py
+│       ├── configuration.py
+│       ├── schema.py
+│       └── upload.py
 │   ├── message_queue
-│   │   ├── __init__.py
-│   │   ├── configuration.py
-│   │   ├── worker.py
-│   │   ├── tasks.py
-│   │   └── producer.py
-│   │
-│   ├── docker_compose
-│   │   ├── docker-compose-mysql.yml
-│   │   ├── docker-compose-broker.yml
-│   │   ├── docker-compose-producer.yml
-│   │   └── docker-compose-worker.yml
-│   │
-├── airflow/                          # 🔥 核心資料擷取模組
-│   ├── airflow.cfg
-│   ├── docker-compose-airflow.yml
-│   ├── Dockerfile
-│   │
-│   ├── dags
-│   │   ├── __init__.py
-│   │
-└── 
-```
+│       ├── __init__.py
+│       ├── configuration.py
+│       ├── worker.py
+│       ├── tasks.py
+│       └── producer.py
+│                        
+├── docker_compose/
+│   ├── docker-compose-broker.yml
+│   ├── docker-compose-mysql-vm.yml
+│   ├── docker-compose-mysql.yml
+│   ├── docker-compose-producer.yml
+│   ├── docker-compose-worker-vmQ.yml
+│   └── docker-compose-worker.yml
+│
+├── infra/tf/steam-workers/
+│   ├── terraform
+│       ├──LICENSE.txt
+│       └──terraform-provider-google_v5.45.2_x5
+│   ├──terraform.lock.hcl
+│   ├── main.tf
+│   ├── prod.tfvars
+│   ├── prod.tfvars.example
+│   ├── startup.sh.tmpl
+│   ├── terraform.tfstate
+│   └── terraform.tfstate.backup
+├── metabase/
+    ├── docker-compose-metabase-vm.yml
+    └── docker-compose-metabase.yml
+
+
 
 ```
 git clone
