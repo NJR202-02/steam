@@ -93,7 +93,7 @@ steam/
     ├── docker-compose-metabase-vm.yml       # metabase-vm 服務配置
     └── docker-compose-metabase.yml          # metabase 服務配置
 ```
-
+---
 
 ## 指令
 
@@ -224,6 +224,7 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
 
 
