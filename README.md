@@ -134,9 +134,8 @@ docker compose -f docker_compose/docker-compose-broker.yml up -d
 
 # 停止並移除 RabbitMQ 服務
 docker compose -f docker_compose/docker-compose-broker.yml down
-
-docker compose -f docker_compose/docker-compose-producer.yml up
-docker compose -f docker_compose/docker-compose-worker.yml up
+docker compose -f docker_compose/docker-compose-producer.yml down
+docker compose -f docker_compose/docker-compose-worker.yml down
 
 # 查看服務 logs
 docker logs -f rabbitmq
@@ -224,6 +223,7 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
 
 
