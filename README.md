@@ -133,10 +133,6 @@ docker compose -f airflow/docker-compose-airflow.yml up
 
 ### Message Queue (RabbitMQ Broker 與 Celery Worker)
 ```
-docker build -f Dockerfile -t shydatas/data_ingestion:latest .
-```
-
-```
 # 啟動 RabbitMQ Broker 服務
 docker compose -f docker_compose/docker-compose-broker.yml up -d
 
@@ -232,6 +228,7 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
 
 
