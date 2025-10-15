@@ -20,7 +20,6 @@ Steam作為全球最大的遊戲平台，其海量用戶評論是反映玩家真
 
 # 🏗️ 專案架構概述
 
-
 本專案是一個完整的資料工程管道，整合了多個現代化的資料處理工具：
 
 - **🕷️ 資料擷取**: 使用 Python 爬蟲技術擷取 Steam 遊戲平台資料
@@ -30,12 +29,14 @@ Steam作為全球最大的遊戲平台，其海量用戶評論是反映玩家真
 - **📊 資料視覺化**: Metabase 建立商業智慧儀表板
 - **🐳 容器化部署**: Docker & Docker Compose 統一管理服務
 
-### 資料流程
+
+## 資料流程
 ```
 Steam API → Python 爬蟲 → RabbitMQ → Celery Workers → MySQL → Metabase
                 ↑                                                ↓
             Airflow DAG                                      商業智慧報表
 ```
+
 
 ## 資料夾結構
 ```
@@ -97,6 +98,7 @@ steam/
     └── docker-compose-metabase.yml          # metabase 服務配置
 ```
 
+
 ## 指令
 
 ### 🔧 環境設定
@@ -110,7 +112,7 @@ uv sync
 docker network create njr20202_network
 ```
 
-## MySQL 資料庫
+### MySQL 資料庫
 ```bash
 # 啟動 MySQL 服務
 docker compose -f docker_compose/docker-compose-mysql-vm.yml up -d
@@ -120,7 +122,7 @@ docker compose -f docker_compose/docker-compose-mysql-vm.yml down
 ```
 
 
-## Apache Airflow 工作流程管理 (待改)
+### Apache Airflow 工作流程管理 (待改)
 ```
 docker build -f airflow/Dockerfile -t shydatas/airflow:latest .
 ```
@@ -129,14 +131,14 @@ docker build -f airflow/Dockerfile -t shydatas/airflow:latest .
 docker compose -f airflow/docker-compose-airflow.yml up
 ```
 
-## 🔥 RabbitMQ Broker 與 Celery Worker  (待補)
+### 🔥 RabbitMQ Broker 與 Celery Worker  (待補)
 ```
 # 查看服務 logs
 docker logs -f rabbitmq
 docker logs -f flower
 ```
 
-## Message Queue RabbitMQ Broker 與 Celery Worker
+### Message Queue RabbitMQ Broker 與 Celery Worker
 ```
 docker build -f Dockerfile -t shydatas/data_ingestion:latest .
 ```
@@ -169,28 +171,6 @@ docker compose -f metabase/docker-compose-metabase-vm.yml ps
 
 # 存取 Metabase 網頁介面
 # http://35.209.179.160:3000/
-```
-
-###  爬蟲與任務執行  (待改)
-```bash
-# Producer 發送任務
-uv run data_ingestion/producer.py
-uv run data_ingestion/producer_crawler_hahow_all.py
-uv run data_ingestion/producer_crawler_hahow_by_queue.py
-uv run data_ingestion/producer_crawler_hahow_course.py
-
-# 啟動 Worker
-uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker1%h
-uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker2%h
-
-# 指定 Worker concurrency
-uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker1%h --concurrency=1
-uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker2%h --concurrency=1
-
-# 指定 Worker queue
-uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker1%h -Q hahow_course
-uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker2%h -Q hahow_article
-uv run celery -A data_ingestion.worker worker --loglevel=info --hostname=worker3%h -Q hahow_course,hahow_article
 ```
 
 ###  Docker Compose 服務管理
@@ -259,5 +239,6 @@ terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
+
 
 
