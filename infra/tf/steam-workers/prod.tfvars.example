@@ -1,5 +1,5 @@
 project_id   = "your porject id"
-worker_count = 2
+worker_count = 2    # 設定需要的 VM 數量
 env_text     = <<-EOF
 
 RABBITMQ_HOST= vm-main IP
