@@ -22,6 +22,7 @@ Steam作為全球最大的遊戲平台，其海量用戶評論是反映玩家真
 - **🗄️ 資料存儲**: MySQL 資料庫儲存結構化資料
 - **📊 資料視覺化**: Metabase 建立商業智慧儀表板
 - **🐳 容器化部署**: Docker & Docker Compose 統一管理服務
+- **☁️ 雲端部署**：將整體架構部署至Google Cloud Platform（GCP），使用 Compute Engine 建立多台 VM，透過 Terraform 產生多台 Worker 執行分散式爬蟲與資料處理
 
  ---
 
@@ -77,17 +78,10 @@ steam/
 │   ├── docker-compose-worker-vmQ.yml        # Worker-vm 服務配置
 │   └── docker-compose-worker.yml            # Worker 服務配置
 │
-├── infra/tf/steam-workers/
-│   ├── terraform
-│   │   ├──LICENSE.txt
-│   │   └──terraform-provider-google_v5.45.2_x5
-│   ├──terraform.lock.hcl
-│   ├── main.tf
-│   ├── prod.tfvars
-│   ├── prod.tfvars.example
-│   ├── startup.sh.tmpl
-│   ├── terraform.tfstate
-│   └── terraform.tfstate.backup
+├── infra/tf/steam-workers/                  # Terraform 模組
+│   ├── main.tf                              # Worker-vm 基礎架構設定檔
+│   ├── prod.tfvars.example                  # 環境變數設定範本
+│   └── startup.sh.tmpl                      # VM 開機初始化腳本模板
 │
 └── metabase/
     ├── docker-compose-metabase-vm.yml       # metabase-vm 服務配置
@@ -197,9 +191,8 @@ gcloud config set project <你的GCP專案ID>
 ```
 
 ### 3）進入指定資料夾並建立prod.tfvars
-- 可參考prod.tfvars.example建立。
+- 先進入steam/infra/tf/steam-workers，再建立prod.tfvars。建立時可參考prod.tfvars.example。
 - worker_count可直接決定需要的vm-worker台數。
-- 先進入steam/infra/tf/steam-workers再建立prod.tfvars。
 
 ```
 cd steam/infra/tf/steam-workers
