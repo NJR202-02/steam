@@ -173,8 +173,8 @@ docker compose -f docker_compose/docker-worker.yml down
 ## Terraform 
 
 ### 1）安裝 Terraform（Ubuntu）
-- 在本地Ubuntu進行安裝。
-```
+```bash
+# 在本地Ubuntu進行安裝。
 sudo apt update
 sudo apt install -y wget gnupg software-properties-common
 wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
@@ -184,36 +184,34 @@ sudo apt update && sudo apt install -y terraform
 ```
 
 ### 2）登入 GCP（讓 Terraform 有權限）
-- 授予 Terraform 建立 VM 的權限。輸入專案ID時請拿掉"<>"。
-```
+```bash
+# 授予 Terraform 建立 VM 的權限。輸入專案ID時請拿掉"<>"。
 gcloud auth application-default login
 gcloud config set project <你的GCP專案ID>
 ```
 
 ### 3）進入指定資料夾並建立prod.tfvars
-- 先進入steam/infra/tf/steam-workers，再建立prod.tfvars。建立時可參考prod.tfvars.example。
-- worker_count可直接決定需要的vm-worker台數。
-
-```
+```bash
+# 先進入steam/infra/tf/steam-workers，再建立prod.tfvars。建立時可參考prod.tfvars.example。
 cd steam/infra/tf/steam-workers
-```
-
-```
 nano prod.tfvars
 ```
 
 ### 4）初始化
-```
+```bash
 terraform init
 ```
 
 ### 5）建立vm-worker
-```
+```bash
+# 使用 plan 可預覽變更計畫。
+terraform plan -var-file=prod.tfvars -var="project_id=your project id"
+# 使用 apply 才會實際執行變更。
 terraform apply -var-file=prod.tfvars -var="project_id=your project id"
 ```
 
 ### 6）刪除已建立vm-worker
-```
+```bash
 terraform destroy -var-file=prod.tfvars -var="project_id=your project id"
 ```
 
