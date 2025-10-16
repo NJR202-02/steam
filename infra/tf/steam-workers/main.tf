@@ -39,13 +39,13 @@ variable "machine_type" {
   default = "e2-micro"
 }
 
-# 一次開放多個連接埠（你給的清單）
+# 一次開放多個連接埠
 variable "opened_ports" {
   type    = list(string)
   default = ["3000", "3306", "5555", "5672", "8000", "8080", "15672", "22"]
 }
 
-# 你的 .env 內容（敏感資訊用 tfvars 覆蓋）
+# .env 內容（敏感資訊用 tfvars 覆蓋）
 variable "env_text" {
   type    = string
   default = ""
@@ -83,7 +83,7 @@ resource "google_compute_firewall" "allow_worker_ports" {
     ports    = var.opened_ports
   }
 
-  source_ranges = ["0.0.0.0/0"] # 生產請改白名單
+  source_ranges = ["0.0.0.0/0"]
   target_tags   = ["steam-worker"]
 }
 

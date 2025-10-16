@@ -13,15 +13,12 @@ apt-get update -y
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 systemctl enable --now docker
 
-#（可選）別動使用者群組；啟動腳本本來就以 root 跑，docker 指令可直接用
-# usermod -aG docker $USER
-
 # --- 安裝 uv（Python 套件工具）---
 # 官方安裝腳本把可執行檔放在 ~/.local/bin；在非互動 shell 手動加 PATH
 curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="/root/.local/bin:$PATH"
 
-# --- 取你的 repo ---
+# --- 取 repo ---
 cd /opt || (mkdir -p /opt && cd /opt)
 if [ ! -d steam ]; then
   git clone --depth 1 "${repo_url}" steam
@@ -36,7 +33,7 @@ ${env_text}
 EOF
 fi
 
-# --- uv 環境同步（若專案有 pyproject.toml 才會生效，不然略過）---
+# --- uv 環境同步 ---
 if [ -f pyproject.toml ]; then
   uv sync || true
 fi
